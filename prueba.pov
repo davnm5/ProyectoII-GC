@@ -76,7 +76,7 @@ global_settings {  assumed_gamma 1.0 }
                            phong 1}
                 } 
         
-      scale<0.5,0.5,0.5>
+      scale<0.8,0.8,0.5>
         }
         
         
@@ -84,7 +84,7 @@ global_settings {  assumed_gamma 1.0 }
                             
 #declare domino = union {
   object { figura }
-  object{num translate <-0.25,2.5,-0.95>}
+  object{num translate <-0.25,2.2,-0.95>}
   object{num translate <-0.25,1,-0.95>}
   
 }
