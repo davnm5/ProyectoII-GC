@@ -50,7 +50,7 @@ global_settings {  assumed_gamma 1.0 }
 }
                             
                             
-#declare domino=   box {
+#declare figura=   box {
     <-1,0,-1>,< 0.5,3,0>
      texture { pigment{ rgb<0,0,0> }
                   finish { diffuse 0.9
@@ -66,10 +66,31 @@ global_settings {  assumed_gamma 1.0 }
                   finish { diffuse 0.9
                            phong 1}
                 } 
-        translate <-2.5,0.25,-1>
+        translate <1,0.25,-2.9>
       scale<2,2,2>
-        }              
+        } 
+         
+#declare num= sphere{ <0,0,0>, 0.25
+        texture { pigment{ rgb<1,1,1> }
+                  finish { diffuse 0.9
+                           phong 1}
+                } 
+        
+      scale<0.5,0.5,0.5>
+        }
+        
+        
+                     
                             
+#declare domino = union {
+  object { figura }
+  object{num translate <-0.25,2.5,-0.95>}
+  object{num translate <-0.25,1,-0.95>}
+  
+}
+
+
+
                             
 camera{Camera_2}
 // sun ---------------------------------------------------------------------
@@ -109,7 +130,11 @@ plane { <0,1,0>, 0
       }
 
 union{
- object{esfera}
+ object{esfera
+ 
+    translate <0, 0,4.5*clock>
+ }
+  
  #for (i, 0,20, 1)
 
    object{ domino
