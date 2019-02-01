@@ -14,6 +14,7 @@ global_settings {  assumed_gamma 1.0 }
 #include "functions.inc"
 #include "math.inc"
 #include "transforms.inc"
+#include "skies.inc"
 
 #declare RasterScale = 1.0;
 #declare RasterHalfLine  = 0.035;  
@@ -53,6 +54,25 @@ global_settings {  assumed_gamma 1.0 }
                          rotate<0,-360*(clock+0.1),5>
 }
                             
+#declare ang = ((5/0.25) *360) / ( 2*pi* pow(0.25,2) );
+
+#declare ball=sphere{ <0,0,0>,0.25
+
+        texture{ pigment{ radial frequency 2
+                          color_map{ [0.0 color Red]
+                                     [0.5 color Red]
+                                     [0.5 color Black]
+                                     [1.0 color Black]
+                                   }
+                        }   
+                 finish { diffuse 0.9 phong 1 } 
+                 
+               }
+      rotate<30,0,0>
+      translate <1,0.25,-2.9>
+      scale<2,2,2>
+      }
+
                             
 #declare figura=   box {
     <-1,0,-1>,< 0.5,3,0>
@@ -66,16 +86,7 @@ global_settings {  assumed_gamma 1.0 }
   }
   
   
-             
-  
-#declare esfera=   sphere{ <0,0,0>, 0.25
-        texture { pigment{ rgb<1,0,0> }
-                  finish { diffuse 0.9
-                           phong 1}
-                } 
-        translate <1,0.25,-2.9>
-      scale<2,2,2>
-        } 
+           
          
 #declare num= sphere{ <0,0,0>, 0.25
         texture { 
@@ -116,22 +127,7 @@ camera{Camera_2}
 light_source{<1500,2500,-2500> color White}
 
 // sky --------------------------------------------------------------- 
-
-sky_sphere{ pigment{ gradient <0,1,0>
-                     color_map{ [0   color rgb<0.24,0.34,0.56>*1.2]        
-                                [0.5 color rgb<0.24,0.34,0.56>*0.4] 
-                                [0.5 color rgb<0.24,0.34,0.56>*0.4] 
-                                [1.0 color rgb<0.24,0.34,0.56>*1.2]          
-                              }
-                                     
-                                     
-                                     
-                                     
-                      rotate< 0,0, 0>  
-                   
-                     scale 2 }
-           } 
-           
+sky_sphere { S_Cloud2 }
           
 //------------------------------------------------------------------------
 
@@ -152,14 +148,13 @@ plane { <0,1,0>, 0
       }
    
 
-  
+
       
 union{
-object{esfera
- 
+object{ball
     translate <-10, 0,4.5*clock>
  }    
- #for (i, 0,20, 1)
+ #for (i, 0,20, 1)  
     object{ domino_four translate<-2,0,i*2 >}
     object{domino_two translate<-8,0,i*2 >}
     object{domino_two translate<i*2,0,i*2 >}
