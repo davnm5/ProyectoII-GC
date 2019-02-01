@@ -30,36 +30,43 @@ global_settings {  assumed_gamma 1.0 }
  #end   
                             
                             
-#declare Jump_Start  = 0.5;
+#declare Jump_Start  = 1;
 #declare Jump_Height = 7;
 #if (clock < Jump_Start )
- #declare Camera_Y = 3.20;
+ #declare Camera_Y = 8;
 #else
- #declare Camera_Y = 1.00
+ #declare Camera_Y = 3;
    + Jump_Height*
-     0.9*(1.4-cos(4*pi*(clock-Jump_Start)));
+     1.5*(0.5+cos(0.5*pi*(clock-Jump_Start)));
 #end 
 
 
+
+
+
+
 #declare Camera_2 = camera {
-                         angle 38
+                         angle 60
                          location <3,Camera_Y,-20>
                          right x*image_width/image_height
-                         look_at <-3,3,5>
+                         look_at <-3,5,5>
                          rotate<0,-360*(clock+0.1),5>
 }
                             
                             
 #declare figura=   box {
     <-1,0,-1>,< 0.5,3,0>
-     texture { pigment{ rgb<0,0,0> }
-                  finish { diffuse 0.9
+     texture {DMFWood4 
+                  finish { diffuse 1.2
                            phong 1}
+               
                 translate<25,0,-5>
                 
                 }
-  }              
+  }
   
+  
+             
   
 #declare esfera=   sphere{ <0,0,0>, 0.25
         texture { pigment{ rgb<1,0,0> }
@@ -71,7 +78,7 @@ global_settings {  assumed_gamma 1.0 }
         } 
          
 #declare num= sphere{ <0,0,0>, 0.25
-        texture { pigment{ rgb<1,1,1> }
+        texture { 
                   finish { diffuse 0.9
                            phong 1}
                 } 
@@ -82,10 +89,22 @@ global_settings {  assumed_gamma 1.0 }
         
                      
                             
-#declare domino = union {
+#declare domino_two = union {
   object { figura }
   object{num translate <-0.25,2.2,-0.95>}
   object{num translate <-0.25,1,-0.95>}
+  
+}    
+
+
+#declare domino_four = union {
+  object { figura }
+  object{num translate <-0.25,2.5,-0.95>}
+  object{num translate <-0.65,1.6,-0.95>}
+  object{num translate <-0.20,1,-0.95>}
+  object{num translate <0.20,0.4,-0.95>} 
+  
+  
   
 }
 
@@ -120,7 +139,10 @@ sky_sphere{ pigment{ gradient <0,1,0>
 //--------------------------------------------------------------------------
 //---------------------------- objects in scene ----------------------------
 //--------------------------------------------------------------------------
-
+                 
+  
+            
+                 
 plane { <0,1,0>, 0
         texture { pigment{color White*1.1}
                   finish {ambient 0.45 diffuse 0.85}}
@@ -128,22 +150,23 @@ plane { <0,1,0>, 0
         texture { Raster(RasterScale,RasterHalfLineZ) rotate<0,90,0>}
         rotate<0,0,0>
       }
+   
 
-union{
- object{esfera
- 
-    translate <0, 0,4.5*clock>
- }
   
+      
+union{
+object{esfera
+ 
+    translate <-10, 0,4.5*clock>
+ }    
  #for (i, 0,20, 1)
-
-   object{ domino
-           translate<2,0,i*2 >
-         }
-
- #end 
-
+    object{ domino_four translate<-2,0,i*2 >}
+    object{domino_two translate<-8,0,i*2 >}
+    object{domino_two translate<i*2,0,i*2 >}
+ #end
  rotate<0,0,0>
- translate<0,0,0>
+ translate<5,0,0>
 }
+  
+
 
