@@ -34,6 +34,8 @@
     var cubePosX;
     var cubePosY;
     var cubePosZ;
+
+    var cubeMesh;
     
 
     //CREA TRES VERTICES CON RESPECTO A UN CUBO PEQUEÑO EN TODAS LAS FIGURAS. 
@@ -120,6 +122,7 @@ var addTablero = function(){
     console.log(tablero.position);
 }
 
+
 var createRubikCube = function(){
     for(var i= 0;i<3;i++){
         for(var j=0;j<3;j++){
@@ -166,13 +169,26 @@ var createRubikCube = function(){
 }
 
 var addRubikCube = function(){
-    cuboRubik.add(pivotPoint);
-    scene.add(cuboRubik);
+    var geometry = new THREE.BoxGeometry( 4, 4, 4 );
+    var material = new THREE.MeshBasicMaterial( {color: 0x000000} );
+    cubeMesh = new THREE.Mesh( geometry, material );
+    cubeMesh.position.y = 3;
+
+    cuboRubik.position.y =-7.5;
+    cuboRubik.position.x =1;
+    cuboRubik.position.z = 1;
+
+
+    cubeMesh.add(cuboRubik);
+    
+    //cubeMesh.add(pivotPoint);
+    scene.add(cubeMesh);
+    //scene.add(cuboRubik);
 }
 var rmRubikCube = function(){
-    cuboRubik.remove(pivotPoint);
+    cubeMesh.remove(pivotPoint);
     scene.add(pivotPoint);
-    scene.remove(cuboRubik);
+    scene.remove(cubeMesh);
 }
 function getRandomInt(min, max) {
     min = Math.ceil(min);
@@ -276,6 +292,7 @@ function init() {
         camera.position.set(30,10,0); // Define posición de la cámara en XYZ
         camera.lookAt( scene.position );
 
+    scene.add(pivotPoint);
     //REPRESENTADOR WebGL
         renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true});
         renderer.setPixelRatio( window.devicePixelRatio );
@@ -392,7 +409,10 @@ function init() {
     var animateFiguras = function(){
         if(menu.rotar_alrededor){
             if(menu.Rubik){
-                pivotPoint.rotation.y += menu.speed_around; }
+                cubeMesh.add(pivotPoint);
+                pivotPoint.rotation.y += menu.speed_around; }else{
+                    cubeMesh.remove(pivotPoint);
+                }
         }
         else{
             pivotPoint.rotation=false;
@@ -438,7 +458,11 @@ function onDocumentMouseDown( event ) {
             
             // calculate objects intersecting the picking ray
             //var intersects = raycaster.intersectObjects( scene.children);
-            var intersects = raycaster.intersectObjects( pivotPoint.children);
+            objects = pivotPoint.children.concat([cubeMesh]);
+
+            console.log(objects);
+
+            var intersects = raycaster.intersectObjects( objects );
             // intersects[0].object.material.color.set( 0xff0000 );
             
             //validate if has objects intersected
