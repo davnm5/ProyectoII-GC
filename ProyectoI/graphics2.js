@@ -7,6 +7,15 @@
     var KEYDOWN;
     var FUNCTION;
 
+    var selected_object = null;
+    var aux;
+    var picking_method = 'transform';
+    // instantiate raycaster 
+    var raycaster = new THREE.Raycaster();
+    var mouse = new THREE.Vector2();
+    // to orbit with mouse
+    var mouseOrbit;
+
     //VARIABLES PARA LA ESCENA, CAMARA Y RENDERIZADO DE LA VENTANA
     var renderer
     var camera
@@ -18,11 +27,6 @@
     var y_anterior;
     var escala = 1;
     // var rotacion;
-
-    //AGRUPA TODAS LAS FIGURAS
-    var objComplejo = new Object;
-    objComplejo.esqueleto = new THREE.Group();
-    //group = new THREE.Group();
     
     //OBJETO COMPLEJO
     var cuboRubik = new THREE.Group();
@@ -48,8 +52,6 @@
     //CONTENEDOR DE FIGURAS
     var figuras= new Object();
     objects=[];
-    objectsId=[];
-    temporal=[];
     var normalizadores={};
     figuras.cantidad=0;
 
@@ -62,17 +64,7 @@
     //CUBO
     var cube_width = tile_width*0.75;
 
-    //CAMERA
-    
-
     //LUCES
-    // var ambient_light, white_light;               // white
-    // var red_light, green_light, blue_light;       // RGB
-    // var cyan_light, magenta_light, yellow_light;  // CMY
-    // var speed=0.025;
-    // var speed_around=0.025;
-    // var geometries=true;
-    //var luces = []
     var distanceFromCenter = 1.75*tile_width;
 
 var addLights = function( distanceFromCenter ){
@@ -104,8 +96,6 @@ var addLights = function( distanceFromCenter ){
     blue.position.set( 0 - tile_width, 20, -distanceFromCenter - tile_width);
     scene.add(blue); 
     
-    // for (let i = 0 ; i< luces.length;i++){
-    //     scene.add(luces[i]);}
 }
 
 var addTablero = function(){
@@ -170,10 +160,8 @@ var createRubikCube = function(){
                 cube.position.z = ((-1.65 + j) * cube_width)+(((j+1)%2)*(-1+j)*(cube_width/50));
                 cube.position.y = ((2 + i) * cube_width)+(((i+1)%2)*(-1+i)*(cube_width/50));
                 cuboRubik.add(cube);
-
             }        
         }
-        
     }
 }
 
@@ -181,7 +169,6 @@ var addRubikCube = function(){
     cuboRubik.add(pivotPoint);
     scene.add(cuboRubik);
 }
-
 var rmRubikCube = function(){
     cuboRubik.remove(pivotPoint);
     scene.add(pivotPoint);
@@ -273,6 +260,10 @@ var menu = {
     //                             //se actualiza el color correspondiente a luz1.
     // lighter: true,				//inicia con todas las luces encendidas
 }
+var shape_params = {
+    color: "#00ffff",
+    picking: "translate"    
+};
     //MENU DE CONTROLES
     gui = new dat.GUI({ height : 3 * 8 - 1 });
     gui_controllers = [];
@@ -300,8 +291,9 @@ function init() {
         renderer.setSize(window.innerWidth,window.innerHeight);
 
     document.body.appendChild(renderer.domElement);
+    mouseOrbit = new THREE.OrbitControls(camera, renderer.domElement);
     controls = new THREE.OrbitControls( camera, renderer.domElement );
-
+    
 
 
     //OBTIENE Y CAMBIA EL COLOR DE LA FIGURA SELECCIONADA
@@ -351,35 +343,51 @@ function init() {
         figura.add(menu, 'figuras', ["ESFERA", "TOROIDE", "PIRAMIDE", "CILINDRO"]); //lista de figuras posibles para crear 
         figura.addColor(menu,'color');
         figura.add(menu, 'addGraphic');  //llamada a funcion agregar figura
-        
+    
+        var shapectl = gui.addFolder("Figura Seleccionada");
+        // adding folder to gui control
+        shapectl.addColor(shape_params, 'color').onChange(ChangeColor).listen();
+        shapectl.add(shape_params, 'picking', [ "translate", "rotate", "scale"] );
 
-    //CONTROLES PARA ARRASTRAR FIGURAS
-		var dragcontrols = new THREE.DragControls( objects, camera, renderer.domElement );
-		dragcontrols.addEventListener( 'dragstart', function ( event ) { controls.enabled = false; } ); //cuando hace click sobre una figura y mientras la tiene sostenida
-		dragcontrols.addEventListener( 'dragend', function ( event ) { controls.enabled = true; } );  //cuando suelta una figura
+    // //CONTROLES PARA ARRASTRAR FIGURAS
+	// 	var dragcontrols = new THREE.DragControls( objects, camera, renderer.domElement );
+	// 	dragcontrols.addEventListener( 'dragstart', function ( event ) { controls.enabled = false; } ); //cuando hace click sobre una figura y mientras la tiene sostenida
+	// 	dragcontrols.addEventListener( 'dragend', function ( event ) { controls.enabled = true; } );  //cuando suelta una figura
 		
-		//CONTROLES PARA EFECTOS DEL MOUSE SOBRE FIGURAS
-		transformControl = new THREE.TransformControls( camera, renderer.domElement );
-		transformControl.addEventListener( 'change', render );
-		scene.add( transformControl );
-		// Hiding transform situation is a little in a mess :()
-		transformControl.addEventListener( 'change', function( e ) {
-			cancelHideTransorm();
-		} );
-		transformControl.addEventListener( 'mouseDown', function( e ) {
-			cancelHideTransorm();
-			dragcontrols.deactivate();
-		} );
-		transformControl.addEventListener( 'mouseUp', function( e ) {
-			delayHideTransform();
-			dragcontrols.activate();
-		} );
-		transformControl.addEventListener( 'objectChange', function( e ) {
-			try {
-					updateSplineOutline();
-			} catch (e) {}
+	// 	//CONTROLES PARA EFECTOS DEL MOUSE SOBRE FIGURAS
+	// 	transformControl = new THREE.TransformControls( camera, renderer.domElement );
+	// 	transformControl.addEventListener( 'change', render );
+	// 	scene.add( transformControl );
+	// 	// Hiding transform situation is a little in a mess :()
+	// 	transformControl.addEventListener( 'change', function( e ) {
+	// 		cancelHideTransorm();
+	// 	} );
+	// 	transformControl.addEventListener( 'mouseDown', function( e ) {
+	// 		cancelHideTransorm();
+	// 		dragcontrols.deactivate();
+	// 	} );
+	// 	transformControl.addEventListener( 'mouseUp', function( e ) {
+	// 		delayHideTransform();
+	// 		dragcontrols.activate();
+	// 	} );
+	// 	transformControl.addEventListener( 'objectChange', function( e ) {
+	// 		try {
+	// 				updateSplineOutline();
+	// 		} catch (e) {}
 
-        } );
+    //     } );
+
+            // adding events to window
+        window.addEventListener( 'mousemove', onMouseMove, false );
+        document.addEventListener( 'mousedown', onDocumentMouseDown );
+
+        // ----- TRANSLATE CONTROL ---------------------------
+        control = new THREE.TransformControls( camera, renderer.domElement );
+        control.addEventListener( 'change', render );
+        control.addEventListener( 'dragging-changed', function ( event ) {
+			mouseOrbit.enabled = ! event.value;
+        } );     
+        scene.add( control );
         //scene.add(group);
         // group.add(pivotPoint);
 }
@@ -478,6 +486,49 @@ function init() {
         for(let i = 0; i< objects.length; i++){
             objects[i].rotation.y += menu.speed;
         } }
+
+    // callback for event to change color
+    function ChangeColor(){
+        selected_object.material.color.setHex(shape_params.color);
+    };
+
+// get mouse coordinates all the time
+function onMouseMove( event ) {
+	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+}
+
+// callback event for mouse down
+function onDocumentMouseDown( event ) {    
+            // event.preventDefault();
+            event.stopPropagation();
+            raycaster.setFromCamera( mouse, camera );
+            
+            // calculate objects intersecting the picking ray
+            //var intersects = raycaster.intersectObjects( scene.children);
+            var intersects = raycaster.intersectObjects( pivotPoint.children);
+            // intersects[0].object.material.color.set( 0xff0000 );
+            
+            //validate if has objects intersected
+            if (intersects.length>0){
+                // pick first intersected object
+                selected_object = intersects[0].object;
+
+                // change gui color
+                shape_params.color = selected_object.material.color.getHex();
+                
+                control.setMode(shape_params.picking);
+                control.attach( selected_object );           
+            }
+}
+             
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    render();
+}
+window.addEventListener( 'resize', onWindowResize, false );
 
 init();
 addTablero();
