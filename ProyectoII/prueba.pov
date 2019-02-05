@@ -266,11 +266,11 @@ object{ball
       [0.000  color r_violet1 transmit 0.45]
       [0.100  color r_violet2 transmit 0.45]
       [0.214  color r_indigo transmit 0.45]
-      [0.328  color r_blue transmit 0.45]
+      [0.328  color r_blue transmit 0.40]
       [0.442  color r_cyan transmit 0.45]
-      [0.556  color r_green transmit 0.45]
-      [0.670  color r_yellow transmit 0.45]
-      [0.784  color r_orange transmit 0.45]
+      [0.556  color r_green transmit 0.40]
+      [0.670  color r_yellow transmit 0.40]
+      [0.784  color r_orange transmit 0.40]
       [0.900  color r_red1 transmit 0.45]
     }
   }       
