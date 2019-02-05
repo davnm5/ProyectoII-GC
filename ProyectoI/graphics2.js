@@ -184,6 +184,7 @@ var addRubikCube = function(){
 
 var rmRubikCube = function(){
     cuboRubik.remove(pivotPoint);
+    scene.add(pivotPoint);
     scene.remove(cuboRubik);
 }
 function getRandomInt(min, max) {
@@ -442,38 +443,30 @@ function init() {
     }
     
 
-    var objectsToPivote = function(){
-        let objs = pivotPoint.children;
+    // var objectsToScene = function(){
+    //     for(let i = 0; i < objects.length; i++){
+    //         let temp = pivotPoint.getObjectById(objects[i].id);
+    //         temporal.push(temp);
+    //         scene.add(temp);
+    //     }
+    //     objects = [];
+    // }
 
-        //for(let i = 0; i< objects.length; i++){
-            for(let i = 0; i< objs.length; i++){
-            //let temp = pivotPoint.getObjectById(i);
-            //console.log(objs[i]);
-            //console.log(objs[i].id);
-            console.log(pivotPoint.getObjectById(objs[i].id));
-            //let temp = pivotPoint.getObjectById(objs[i].id)
-            //temporal.push(temp);
-            //scene.add(temp);
-            //pivotPoint.remove(objs[i]);
-        }
-    }
-
-    var objectsToScene = function(){
-        for(let i = 0; i< temporal.length; i++){
-            let temp = temp[i];
-            objects.push(temp);
-            pivotPoint.add(temp);
-            scene.remove(objects[i]);
-        }
-    }
+    // var objectsToPivote = function(){
+    //     for(let i = 0; i < temporal.length; i++){
+    //         let temp = temporal[i];
+    //         objects.push(temp);
+    //         pivotPoint.add(temp);
+    //         scene.remove(objects[i]);
+    //     }
+    //     temporal = [];
+    // }
     var updateFiguras = function(){ 
         if (menu.Rubik){
             addRubikCube();
         }else{
-            objectsToPivote();
             menu['rotar_alrededor'] = false;
             rmRubikCube();
-            
         }
 
 
