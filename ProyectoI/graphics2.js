@@ -241,24 +241,19 @@ var menu = {
     background: backgroundScene, 
     baldosas: tile_color,
     Rubik: true,
+    
     rotar_alrededor: false,				//inicia con escena sin girar las figuras
     speed_around: this.speed_around,
     rotar: false,
     speed:this.speed,
+    
     white_up: true, white_down: false, 
     red: false, green: false , blue: false, 
-
-    //colorGraphic: '#ff0000',
-
+    
     figuras: "ESFERA",			//por defecto opcion de agregar un cubo
     addGraphic: agregar,		//llamada a funcion agregar() una figura
     color: '#ff00ff'
-    // texturas: "SPRITE",
-    // addTexture: addTextura,
-    // luz: 'LUZ1',				//por defecto luz1 para controlar  
-    // colorLight: "#de1818",		//color por defecto no mantiene
-    //                             //se actualiza el color correspondiente a luz1.
-    // lighter: true,				//inicia con todas las luces encendidas
+
 }
 var shape_params = {
     color: "#00ffff",
@@ -291,17 +286,9 @@ function init() {
         renderer.setSize(window.innerWidth,window.innerHeight);
 
     document.body.appendChild(renderer.domElement);
-    mouseOrbit = new THREE.OrbitControls(camera, renderer.domElement);
-    controls = new THREE.OrbitControls( camera, renderer.domElement );
-    
-
-
-    //OBTIENE Y CAMBIA EL COLOR DE LA FIGURA SELECCIONADA
-    // gui.addColor(menu, 'colorGraphic').onChange( function(value) {
-    //     let colorObject = new THREE.Color(value);
-    //     ONFOCUS_OBJECT.material.color.set(colorObject);  //cambia el color de la figura seleccionada con click
-    //     Materialize.toast('Color cambiado', 4000); });
-    
+    //mouseOrbit = new THREE.OrbitControls(camera, renderer.domElement);
+    mouseOrbit = new THREE.OrbitControls( camera, renderer.domElement );
+       
     gui.addColor(menu, 'background');//.onChange(update);
     gui.addColor(menu, 'baldosas');
 
@@ -349,34 +336,6 @@ function init() {
         shapectl.addColor(shape_params, 'color').onChange(ChangeColor).listen();
         shapectl.add(shape_params, 'picking', [ "translate", "rotate", "scale"] );
 
-    // //CONTROLES PARA ARRASTRAR FIGURAS
-	// 	var dragcontrols = new THREE.DragControls( objects, camera, renderer.domElement );
-	// 	dragcontrols.addEventListener( 'dragstart', function ( event ) { controls.enabled = false; } ); //cuando hace click sobre una figura y mientras la tiene sostenida
-	// 	dragcontrols.addEventListener( 'dragend', function ( event ) { controls.enabled = true; } );  //cuando suelta una figura
-		
-	// 	//CONTROLES PARA EFECTOS DEL MOUSE SOBRE FIGURAS
-	// 	transformControl = new THREE.TransformControls( camera, renderer.domElement );
-	// 	transformControl.addEventListener( 'change', render );
-	// 	scene.add( transformControl );
-	// 	// Hiding transform situation is a little in a mess :()
-	// 	transformControl.addEventListener( 'change', function( e ) {
-	// 		cancelHideTransorm();
-	// 	} );
-	// 	transformControl.addEventListener( 'mouseDown', function( e ) {
-	// 		cancelHideTransorm();
-	// 		dragcontrols.deactivate();
-	// 	} );
-	// 	transformControl.addEventListener( 'mouseUp', function( e ) {
-	// 		delayHideTransform();
-	// 		dragcontrols.activate();
-	// 	} );
-	// 	transformControl.addEventListener( 'objectChange', function( e ) {
-	// 		try {
-	// 				updateSplineOutline();
-	// 		} catch (e) {}
-
-    //     } );
-
             // adding events to window
         window.addEventListener( 'mousemove', onMouseMove, false );
         document.addEventListener( 'mousedown', onDocumentMouseDown );
@@ -388,8 +347,6 @@ function init() {
 			mouseOrbit.enabled = ! event.value;
         } );     
         scene.add( control );
-        //scene.add(group);
-        // group.add(pivotPoint);
 }
 
 //ANIMAR
@@ -406,8 +363,6 @@ function init() {
             }
             if(fig == "PIRAMIDE"){
                 geometria = new THREE.CylinderBufferGeometry(0,2,3,4);
-                // let material = new THREE.MeshPhongMaterial({ color:"#00ffff", side: THREE.DoubleSide, flatShading: true });
-                // geometria = new THREE.CylinderGeometry( 0, 20, 20, 3 );
             }
             if(fig == "CILINDRO"){
                 geometria = new THREE.CylinderGeometry(1,1,3,8);
@@ -415,8 +370,6 @@ function init() {
 
             nombre =figuras.agregar(fig,geometria,color);
             renderer.render( scene, camera );
-            //updateSplineOutline();
-            //console.log("Agrega: "+nombre);
     }
 
     var updateLights = function(){ 
@@ -449,26 +402,7 @@ function init() {
             rotateFiguras(); 
         }
     }
-    
 
-    // var objectsToScene = function(){
-    //     for(let i = 0; i < objects.length; i++){
-    //         let temp = pivotPoint.getObjectById(objects[i].id);
-    //         temporal.push(temp);
-    //         scene.add(temp);
-    //     }
-    //     objects = [];
-    // }
-
-    // var objectsToPivote = function(){
-    //     for(let i = 0; i < temporal.length; i++){
-    //         let temp = temporal[i];
-    //         objects.push(temp);
-    //         pivotPoint.add(temp);
-    //         scene.remove(objects[i]);
-    //     }
-    //     temporal = [];
-    // }
     var updateFiguras = function(){ 
         if (menu.Rubik){
             addRubikCube();
@@ -480,8 +414,6 @@ function init() {
 
     }
     
-    
-
     var rotateFiguras = function(){
         for(let i = 0; i< objects.length; i++){
             objects[i].rotation.y += menu.speed;
