@@ -54,6 +54,7 @@
     //CONTENEDOR DE FIGURAS
     var figuras= new Object();
     objects=[];
+    temp=[];
     var normalizadores={};
     figuras.cantidad=0;
 
@@ -102,7 +103,11 @@ var addLights = function( distanceFromCenter ){
 
 var addTablero = function(){
     var tile_geometry = new THREE.BoxGeometry(tile_width,tile_width/10,tile_width);
-    var black_material = new THREE.MeshPhongMaterial({ color:"#000000", side: THREE.DoubleSide, flatShading: true });   //fixed color
+    var texture = new THREE.TextureLoader().load( "resources/madera.jpg");
+    //new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture("crate.gif") });
+    //var black_material = new THREE.MeshPhongMaterial({ color:"#000000", side: THREE.DoubleSide, flatShading: true });   //fixed color
+    
+    var black_material = new THREE.MeshPhongMaterial({ map: THREE.ImageUtils.loadTexture("resources/madera.jpg") });   //fixed color
     var color_material = new THREE.MeshPhongMaterial({ color:tile_color, side: THREE.DoubleSide, flatShading: true });  //to change with gui
     var black_color = -1;
     //Chess Table has 64 tiles, 8 rows, 8 columns
@@ -178,16 +183,17 @@ var addRubikCube = function(){
     cuboRubik.position.x =1;
     cuboRubik.position.z = 1;
 
-
+    scene.remove(pivotPoint);
+    cuboRubik.add(pivotPoint);
     cubeMesh.add(cuboRubik);
-    
-    //cubeMesh.add(pivotPoint);
+    cubeMesh.add(pivotPoint);
     scene.add(cubeMesh);
     //scene.add(cuboRubik);
 }
 var rmRubikCube = function(){
-    cubeMesh.remove(pivotPoint);
+    //cubeMesh.remove(pivotPoint);
     scene.add(pivotPoint);
+    cuboRubik.remove(pivotPoint);
     scene.remove(cubeMesh);
 }
 function getRandomInt(min, max) {
@@ -244,6 +250,7 @@ figuras.agregar=function(name,geometria,COLOR){
     //GUARDA EL INVERSO DE LA MATRIZ DE DEFORMACIÓN
     this[nombre].normalizador=0;
     objects.push(this[nombre].esqueleto);
+    temp.push(this[nombre].esqueleto);
     //group.add(this[nombre].esqueleto);
     pivotPoint.add(this[nombre].esqueleto);
     splineHelperObjects.push(self.figuras[nombre].esqueleto)
@@ -267,13 +274,14 @@ var menu = {
     red: false, green: false , blue: false, 
     
     figuras: "ESFERA",			//por defecto opcion de agregar un cubo
-    addGraphic: agregar,		//llamada a funcion agregar() una figura
+    addGraphic: function(){ agregar();},		//llamada a funcion agregar() una figura
     color: '#ff00ff'
 
 }
 var shape_params = {
     color: "#00ffff",
-    picking: "translate"    
+    picking: "translate",
+    removeObj: function(){ remove(); }    
 };
     //MENU DE CONTROLES
     gui = new dat.GUI({ height : 3 * 8 - 1 });
@@ -306,13 +314,11 @@ function init() {
     //mouseOrbit = new THREE.OrbitControls(camera, renderer.domElement);
     mouseOrbit = new THREE.OrbitControls( camera, renderer.domElement );
        
-    gui.addColor(menu, 'background');//.onChange(update);
-    gui.addColor(menu, 'baldosas');
+    gui.addColor(menu, 'background').onChange( changeBackgroundColor ).listen();
+    gui.addColor(menu, 'baldosas').onChange( changeColorTiles ).listen();
 
     //ROTA TODO EL GRUPO DE FIGURAS
-        gui.add(menu, 'Rubik').onChange(function(newValue) {
-            updateFiguras(newValue);
-        });;
+        //gui.add(menu, 'Rubik').onChange(updateFiguras);
 
     //ROTA TODO EL GRUPO DE FIGURAS
         var animRotar = gui.addFolder("Rotacion")
@@ -352,6 +358,7 @@ function init() {
         // adding folder to gui control
         shapectl.addColor(shape_params, 'color').onChange(ChangeColor).listen();
         shapectl.add(shape_params, 'picking', [ "translate", "rotate", "scale"] );
+        shapectl.add(shape_params, 'removeObj');
 
             // adding events to window
         window.addEventListener( 'mousemove', onMouseMove, false );
@@ -435,14 +442,66 @@ function init() {
     }
     
     var rotateFiguras = function(){
-        for(let i = 0; i< objects.length; i++){
-            objects[i].rotation.y += menu.speed;
-        } }
+        // cubeMesh.remove(cuboRubik);
+        // scene.add(cuboRubik);
+        for(let i = 0; i< temp.length; i++){
+            temp[i].rotation.y += menu.speed;
+        } 
+        cubeMesh.rotation.y += menu.speed;
+        if (menu.Rubik){
+            pivotPoint.rotation.y -= menu.speed_around;
+        }
+        // scene.remove(cuboRubik);
+        // cubeMesh.add(cuboRubik);
+        // let temp = pivotPoint.children;
+        
+    }
 
     // callback for event to change color
     function ChangeColor(){
         selected_object.material.color.setHex(shape_params.color);
     };
+
+        // update and render loop
+        var isHex = function (posible_hex) {
+            let re = /[0-9A-Fa-f]{6}/g;
+            if (re.test(posible_hex)) { return true; } 
+            else { return false; } }
+    
+        // callback for event to change color
+        function changeBackgroundColor(){
+            let background_hex = new THREE.Color(menu.background).getHexString();
+            if ( isHex(background_hex) && scene.background != "#" + background_hex ){
+                scene.background = new THREE.Color("#"+background_hex); }
+            // backgroundScene = menu.background;
+            // scene.background.color.setHex(backgroundScene);
+        };
+    
+        function changeColorTiles(){
+            let color_hex = new THREE.Color(menu.baldosas).getHexString();
+    
+            if ( isHex(color_hex) && tile_color != "#" + color_hex ){
+                tile_color = "#" + color_hex;
+                let table = scene.getObjectByName(tablero);
+                scene.remove(table);
+                addTablero(); }
+            // for(let t = 0;t<color_tiles.length; t++ ){
+            //     color_tiles[t].material.color.setHex(menu.baldosas);
+            // }
+        };
+    
+        function remove(){
+            if(selected_object.id != cubeMesh.id)
+            {
+                console.log("remove");
+            control.detach(selected_object);
+            index = pivotPoint.children.indexOf(selected_object);
+            pivotPoint.children.splice(index,1);
+            
+            //scene.remove(selected_object);
+            renderer.render( scene, camera );
+            }
+        }
 
 // get mouse coordinates all the time
 function onMouseMove( event ) {
