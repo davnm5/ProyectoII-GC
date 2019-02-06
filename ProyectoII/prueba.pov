@@ -14,8 +14,7 @@ global_settings {  assumed_gamma 1.0 }
 
 #declare RasterScale = 2.0;
 #declare RasterHalfLine  = 0.035;  
-#declare RasterHalfLineZ = 0.035;
-#declare lista = array[100]; 
+#declare RasterHalfLineZ = 0.035; 
 //-------------------------------------------------------------------------
 
   #declare r_violet1 = color rgbf<1.0, 0.5, 1.0, 1.0>;
@@ -53,16 +52,21 @@ global_settings {  assumed_gamma 1.0 }
 #end 
 
 
-
+#declare Camera_1= camera {
+  location <5,35,-20>
+  right x*image_width/image_height
+  look_at <5,2,6>
+  rotate<0,360*(clock+0.1),5>
+ }
 
 
 
 #declare Camera_2 = camera { 
 
-                         angle 100
+                         angle 80
                          location <3,Camera_Y,-20>
                          right x*image_width/image_height
-                         look_at <2,2,-3>
+                         look_at <-2,2,-3>
                          rotate<0,-360*(clock+0.1),5>
 }
                             
@@ -80,7 +84,7 @@ global_settings {  assumed_gamma 1.0 }
                  
                }
       rotate<30,0,0>
-      translate <2,0.25,-8>
+      translate <2,0.25,-8.5>
       scale<2,2,2>
       }
 
@@ -140,7 +144,7 @@ sky_sphere {S_Cloud2}
    
 union{
 object{ball
-    translate <-9,0,3.2*clock>
+    translate <-9,0,5.6*clock>
  }
  
     
@@ -168,7 +172,7 @@ object{ball
 #declare h=0; 
 union{
 object{ball
-    translate <-9,0,8>
+    translate <-9,0,8.5>
  }
  
     
@@ -198,7 +202,7 @@ object{ball
 # macro animate1()
 union{
 object{ball
-    translate <-9,0,8>
+    translate <-9,0,8.5>
  }
  
     
@@ -227,7 +231,7 @@ object{ball
 #declare h=0; 
 union{
 object{ball
-    translate <-9,0,8>
+    translate <-9,0,8.5>
  }
  
     
@@ -284,19 +288,23 @@ plane { <0,1,0>, 0
       }
    
    
-#if(frame_number<=45)
+#if(frame_number<45)
      
      create()
 #end
-#if(frame_number>=46 & frame_number<=49 )
+#if(frame_number>=45 & frame_number<=46 )
 animate1()      
 #end
-#if(frame_number>49 & frame_number<=52)
+#if(frame_number>46 & frame_number<=47)
 animate2()      
 #end
-#if(frame_number>52)
+#if(frame_number>47)
 animate3()      
 #end
+#if(frame_number>55)
+ camera{Camera_1}    
+#end
+
 
   
 
